@@ -1,4 +1,4 @@
-#PDF Title Extraction
+# PDF Title Extraction
 
 Extract and rename the title of academic paper pdfs using pdfminer, based on the font size, given that the font size of the title is largest in academic papers in most cases.
 
