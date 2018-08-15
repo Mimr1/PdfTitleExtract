@@ -11,7 +11,11 @@ import re
 import os
 import sys
 
-
+'''
+    Count the number of characters with the maximum.
+    If the number is 0, it's a empty textbox.
+    If the number is 1, it's a initialdrop cap letter probably. 
+'''
 def line_length(s):
     cnt = 0
     size = 0
@@ -32,6 +36,7 @@ def line_length(s):
         return True
 
 
+# Replace the characters that are not supported in the Windows filename with the space
 def title_proc(title):
     title = re.sub(r'[\s<>:"/\\|\?*]+', ' ', title)
     return title
