@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 from pdfminer.pdfparser import PDFParser
 from pdfminer.pdfdocument import PDFDocument
 from pdfminer.pdfpage import PDFPage, PDFTextExtractionNotAllowed
@@ -10,12 +12,29 @@ import os
 import sys
 
 
-def find_absorintro(s):
-    r = re.compile('(abstract|introduction)', re.I)
-    if re.search(r, s) is not None:
-        return True
-    else:
+def line_length(s):
+    cnt = 0
+    size = 0
+    for ch in s:
+        if isinstance(ch, LTChar):
+            if ch.size > size:
+                cnt = 1
+                size = ch.size
+            elif ch.size == size:
+                cnt += 1
+
+    # s = s.get_text()
+    # result = re.findall(r'[a-z0-9]', s, re.I)
+    # if len(result) <= 1:
+    if cnt <= 1:
         return False
+    else:
+        return True
+
+
+def title_proc(title):
+    title = re.sub(r'[\s<>:"/\\|\?*]+', ' ', title)
+    return title
 
 
 def main():
@@ -49,24 +68,20 @@ def main():
                 for box in layout:
                     if isinstance(box, LTTextBoxHorizontal):
                         text = box.get_text()
-                        if find_absorintro(text):
+                        for line in box:
+                            if line_length(line) and isinstance(line, LTTextLineHorizontal):
+                                for ch in line:
+                                    if ch.size > size:
+                                        title = box.get_text()
+                                        size = ch.size
+                                    elif ch.size == size:
+                                        title = title + box.get_text()
+                                    break
                             break
-                        else:
-                            for line in box:
-                                if isinstance(line, LTTextLineHorizontal):
-                                    for ch in line:
-                                        if ch.size > size:
-                                            title = box.get_text()
-                                            size = ch.size
-                                        elif ch.size == size:
-                                            title = title + box.get_text()
-                                        break
-                                break
 
-                title = title.replace('\n', ' ')
-                title = title.translate({ord(c): None for c in '<>:"/\|?*'})
+                title = title_proc(title)
                 fp.close()
-                #print(title.rstrip()+'.pdf')
+                print(title.rstrip()+'.pdf')
                 os.rename(filename, title.rstrip()+'.pdf')
 
 
